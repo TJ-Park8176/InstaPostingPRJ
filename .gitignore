@@ -1,0 +1,22 @@
+# Security / Environment Variables
+.env
+*.env
+
+# Python Virtual Environment & Cache
+venv/
+ENV/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Local Generated Data & Storage
+Content/
+output/
+.tempmediaStorage/
+
+# IDE & AGY Workspace Metadata
+.vscode/
+.idea/
+.antigravity/

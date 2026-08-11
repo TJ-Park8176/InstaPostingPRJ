@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insta Content Generator - 동물 뉴스 카드뉴스 메이커</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Pretendard', sans-serif; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-900 pb-20">
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform translate-y-[-100px] opacity-0 transition-all duration-300 bg-slate-900 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center gap-3">
+        <span class="text-xl">✅</span>
+        <span id="toastMsg" class="font-medium text-sm"></span>
+    </div>
+
+    <!-- Image Lightbox Modal for Large Preview -->
+    <div id="lightboxModal" class="fixed inset-0 z-50 hidden bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 transition-all duration-300">
+        <!-- Close Button -->
+        <button id="closeLightboxBtn" class="absolute top-6 right-6 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition-colors text-xl font-bold focus:outline-none">
+            ✕
+        </button>
+
+        <!-- Main Modal Content -->
+        <div class="relative max-w-4xl w-full max-h-[85vh] flex flex-col items-center justify-center">
+            <!-- Counter & Title -->
+            <div class="mb-4 text-center">
+                <span id="lightboxCounter" class="px-4 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-full tracking-wider">
+                    1 / 5
+                </span>
+                <h4 id="lightboxTitle" class="text-white text-base font-semibold mt-2 drop-shadow-md"></h4>
+            </div>
+
+            <!-- Image Viewport with Prev / Next Buttons -->
+            <div class="relative flex items-center justify-center w-full">
+                <button id="prevSlideBtn" class="absolute left-2 sm:-left-12 z-10 text-white bg-black/50 hover:bg-black/80 border border-white/20 p-4 rounded-full transition-all text-2xl font-bold shadow-2xl hover:scale-110">
+                    ◀
+                </button>
+
+                <img id="lightboxImage" src="" alt="Large Preview" class="max-h-[75vh] max-w-full object-contain rounded-2xl shadow-2xl border border-white/10">
+
+                <button id="nextSlideBtn" class="absolute right-2 sm:-right-12 z-10 text-white bg-black/50 hover:bg-black/80 border border-white/20 p-4 rounded-full transition-all text-2xl font-bold shadow-2xl hover:scale-110">
+                    ▶
+                </button>
+            </div>
+
+            <!-- Download Button in Modal -->
+            <a id="lightboxDownloadBtn" href="#" download target="_blank" class="mt-4 inline-flex items-center gap-2 px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-lg transition-all">
+                <span>⬇️ 현재 슬라이드 이미지 다운로드</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="max-w-5xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="text-center mb-10">
+            <div class="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-100 text-emerald-700 px-4 py-1.5 rounded-full text-sm font-semibold mb-4">
+                🐾 실시간 세계 동물 뉴스 & 검증 팩트 카드뉴스
+            </div>
+            <h1 class="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight leading-tight">
+                동물 뉴스 카드뉴스 메이커
+            </h1>
+            <p class="mt-3 text-lg text-slate-500 max-w-2xl mx-auto">
+                전 세계 실제 언론사의 흥미진진한 동물 뉴스를 실시간 수집하여 출처와 원문 링크가 명시된 고화질 카드뉴스를 생성합니다.
+            </p>
+        </div>
+
+        <!-- Input Form Section -->
+        <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-xl shadow-indigo-100/50 mb-10">
+            <form id="generateForm" class="flex flex-col gap-3">
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="relative flex-1">
+                        <input type="text" id="topicInput"
+                            class="w-full rounded-2xl border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500 text-base sm:text-lg px-5 py-4 border bg-white/80 transition-all"
+                            placeholder="특정 동물 주제 입력 (예: 강아지, 고양이, 판다) 또는 빈칸 검색">
+                    </div>
+                    <button type="submit" id="submitBtn"
+                        class="inline-flex justify-center items-center px-8 py-4 border border-transparent text-base sm:text-lg font-bold rounded-2xl shadow-lg shadow-indigo-600/30 text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all transform hover:scale-[1.01] active:scale-[0.99]">
+                        <span>카드뉴스 생성하기 🚀</span>
+                    </button>
+                </div>
+
+                <div class="flex items-center justify-between pt-2">
+                    <button type="button" id="quickNewsBtn"
+                        class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 text-emerald-800 text-sm font-bold rounded-xl transition-all">
+                        <span>⚡️ 이번 주 최신 이슈 동물 뉴스 자동 탐색</span>
+                    </button>
+                    <span class="text-xs text-slate-400">※ 뉴스 미수집 시 역사 속 동물 실화로 자동 전환</span>
+                </div>
+            </form>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loading" class="hidden flex flex-col items-center justify-center py-16">
+            <div class="relative w-20 h-20 mb-6">
+                <div class="absolute top-0 left-0 w-full h-full border-4 border-emerald-200 rounded-full animate-ping opacity-25"></div>
+                <div class="w-20 h-20 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">실시간 검증 뉴스를 수집하고 카드뉴스를 생성 중입니다</h3>
+            <p class="text-slate-500 text-sm animate-pulse">언론사 출처 검증 및 1080x1080 고화질 렌더링 진행 중 (약 10~15초 소요)</p>
+        </div>
+
+        <!-- Result Section -->
+        <div id="resultSection" class="hidden space-y-10">
+            <!-- Action Toolbar & Downloads Header -->
+            <div class="glass-card p-6 rounded-2xl shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-100">
+                <div>
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-2xl font-bold text-slate-800">
+                            📸 렌더링 완료 카드뉴스
+                        </h2>
+                        <span id="sourceBadge" class="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-bold rounded-full"></span>
+                    </div>
+                    <p class="text-slate-500 text-sm mt-1">이미지를 클릭하면 크게 확대 미리보기가 가능합니다.</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+                    <a id="sourceUrlBtn" href="#" target="_blank"
+                        class="hidden flex-1 sm:flex-initial inline-flex justify-center items-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl shadow-md transition-all text-xs">
+                        <span>🔗 원문 뉴스 기사 확인하기</span>
+                    </a>
+                    <a id="downloadZipBtn" href="#" target="_blank"
+                        class="flex-1 sm:flex-initial inline-flex justify-center items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-md transition-all text-xs">
+                        <span>📦 전체 ZIP 다운로드</span>
+                    </a>
+                    <button id="copyAllTextBtn" type="button"
+                        class="flex-1 sm:flex-initial inline-flex justify-center items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-md transition-all text-xs">
+                        <span>📋 캡션 + 해시태그 복사</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Images Gallery -->
+            <div class="relative">
+                <div id="imageGallery" class="flex overflow-x-auto gap-6 pb-6 pt-2 snap-x scrollbar-thin scrollbar-thumb-indigo-200">
+                    <!-- Dynamic Slide Images inserted here -->
+                </div>
+            </div>
+
+            <!-- Content Details (Caption & Hashtags) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Caption Box -->
+                <div class="glass-card p-6 rounded-3xl shadow-sm flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            📝 인스타그램 본문 캡션
+                        </h3>
+                        <button id="copyCaptionBtn" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-lg transition-colors">
+                            캡션만 복사
+                        </button>
+                    </div>
+                    <div id="captionBox" class="whitespace-pre-wrap text-slate-700 bg-slate-50/80 p-5 rounded-2xl border border-slate-200/80 text-sm leading-relaxed flex-1 min-h-[220px]"></div>
+                </div>
+
+                <!-- Hashtags Box -->
+                <div class="glass-card p-6 rounded-3xl shadow-sm flex flex-col">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            🏷 추천 해시태그
+                        </h3>
+                        <button id="copyHashtagsBtn" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-1.5 rounded-lg transition-colors">
+                            해시태그만 복사
+                        </button>
+                    </div>
+                    <div id="hashtagBox" class="flex flex-wrap gap-2 bg-slate-50/80 p-5 rounded-2xl border border-slate-200/80 flex-1 content-start min-h-[220px]">
+                        <!-- Dynamic Hashtags inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content History Section (보관함) -->
+        <div class="mt-16 pt-10 border-t border-slate-200">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-2xl font-extrabold text-slate-900 flex items-center gap-2">
+                        📂 카드뉴스 보관함 (히스토리)
+                    </h2>
+                    <p class="text-slate-500 text-sm mt-1">저장 폴더(<code class="bg-slate-200 px-2 py-0.5 rounded text-xs">Content/</code>)에 자동 저장된 이전 생성 목록입니다.</p>
+                </div>
+                <button id="refreshHistoryBtn" class="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold text-xs rounded-xl shadow-sm transition-colors">
+                    🔄 새로고침
+                </button>
+            </div>
+
+            <!-- History List Grid -->
+            <div id="historyGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <!-- Dynamic History Cards inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPostData = null;
+        let currentSlideImages = [];
+        let currentLightboxIndex = 0;
+        let allHistoryItems = [];
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.textContent = message;
+            toast.classList.remove('translate-y-[-100px]', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-[-100px]', 'opacity-0');
+            }, 3000);
+        }
+
+        // Lightbox Modal Functions
+        function openLightbox(index) {
+            if (!currentSlideImages || currentSlideImages.length === 0) return;
+            currentLightboxIndex = index;
+            updateLightboxView();
+            document.getElementById('lightboxModal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightboxModal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        function updateLightboxView() {
+            const imgObj = currentSlideImages[currentLightboxIndex];
+            const imgEl = document.getElementById('lightboxImage');
+            const counterEl = document.getElementById('lightboxCounter');
+            const titleEl = document.getElementById('lightboxTitle');
+            const downloadBtn = document.getElementById('lightboxDownloadBtn');
+
+            imgEl.src = imgObj.url;
+            counterEl.textContent = `${currentLightboxIndex + 1} / ${currentSlideImages.length}`;
+            titleEl.textContent = imgObj.title;
+            downloadBtn.href = imgObj.url;
+        }
+
+        function nextSlide() {
+            currentLightboxIndex = (currentLightboxIndex + 1) % currentSlideImages.length;
+            updateLightboxView();
+        }
+
+        function prevSlide() {
+            currentLightboxIndex = (currentLightboxIndex - 1 + currentSlideImages.length) % currentSlideImages.length;
+            updateLightboxView();
+        }
+
+        document.getElementById('closeLightboxBtn').addEventListener('click', closeLightbox);
+        document.getElementById('nextSlideBtn').addEventListener('click', nextSlide);
+        document.getElementById('prevSlideBtn').addEventListener('click', prevSlide);
+
+        document.addEventListener('keydown', (e) => {
+            const modal = document.getElementById('lightboxModal');
+            if (modal.classList.contains('hidden')) return;
+            if (e.key === 'Escape') closeLightbox();
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+
+        // Display Rendered Post in UI
+        function displayPostData(data) {
+            currentPostData = data;
+            const resultSection = document.getElementById('resultSection');
+            const imageGallery = document.getElementById('imageGallery');
+            const captionBox = document.getElementById('captionBox');
+            const hashtagBox = document.getElementById('hashtagBox');
+            const downloadZipBtn = document.getElementById('downloadZipBtn');
+            const sourceBadge = document.getElementById('sourceBadge');
+            const sourceUrlBtn = document.getElementById('sourceUrlBtn');
+
+            imageGallery.innerHTML = '';
+            hashtagBox.innerHTML = '';
+            currentSlideImages = [];
+
+            const cardContent = data.content || {};
+
+            // Source Info
+            if (cardContent.source_name) {
+                sourceBadge.textContent = `📰 출처: ${cardContent.source_name}`;
+            } else {
+                sourceBadge.textContent = `📰 동물 실화`;
+            }
+            if (cardContent.source_url) {
+                sourceUrlBtn.href = cardContent.source_url;
+                sourceUrlBtn.classList.remove('hidden');
+            } else {
+                sourceUrlBtn.classList.add('hidden');
+            }
+
+            // ZIP Download Link
+            if (data.folder_name) {
+                downloadZipBtn.href = `/api/history/${data.folder_name}/download_zip`;
+            } else if (data.post_id) {
+                downloadZipBtn.href = `/api/posts/${data.post_id}/download_zip`;
+            }
+
+            // Prepare Slide Images
+            const imagesList = data.images || [];
+            imagesList.forEach((imgUrl, index) => {
+                const cacheBust = new Date().getTime();
+                let cleanUrl = imgUrl.replace(/\\/g, '/');
+                if (!cleanUrl.startsWith('/')) {
+                    cleanUrl = '/' + cleanUrl;
+                }
+
+                let slideTitle = `슬라이드 ${index + 1}`;
+                if (index === 0) slideTitle = "표지 (Cover)";
+                else if (index === imagesList.length - 1) slideTitle = "마무리 (CTA)";
+
+                currentSlideImages.push({
+                    url: `${cleanUrl}?t=${cacheBust}`,
+                    title: slideTitle
+                });
+
+                const filename = cleanUrl.split('/').pop();
+
+                const imgCardHtml = `
+                    <div class="flex-none w-[280px] sm:w-[320px] snap-center bg-white rounded-2xl p-3 shadow-md border border-slate-200 flex flex-col justify-between group">
+                        <div>
+                            <div class="flex items-center justify-between mb-2 px-1">
+                                <span class="text-xs font-bold px-2.5 py-1 bg-indigo-100 text-indigo-700 rounded-full">${slideTitle}</span>
+                                <span class="text-[11px] text-slate-400 font-mono">1080x1080</span>
+                            </div>
+                            <div onclick="openLightbox(${index})" class="cursor-pointer overflow-hidden rounded-xl bg-slate-100 mb-3 aspect-square border border-slate-100 relative group">
+                                <img src="${cleanUrl}?t=${cacheBust}" 
+                                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                                     alt="${slideTitle}">
+                                <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white font-bold text-sm gap-1">
+                                    <span>🔍 크게 보기</span>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="${cleanUrl}" download="${filename}"
+                           class="w-full inline-flex justify-center items-center gap-1.5 py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs rounded-xl transition-colors">
+                            <span>⬇️ 이미지 다운로드</span>
+                        </a>
+                    </div>
+                `;
+                imageGallery.innerHTML += imgCardHtml;
+            });
+
+            // Render Caption
+            captionBox.textContent = cardContent.caption || "";
+
+            // Render Hashtags
+            const hashtags = cardContent.hashtags || [];
+            hashtags.forEach(tag => {
+                const tagHtml = `<span class="px-3 py-1.5 bg-indigo-50 text-indigo-700 border border-indigo-100 text-xs font-semibold rounded-full">#${tag}</span>`;
+                hashtagBox.innerHTML += tagHtml;
+            });
+
+            resultSection.classList.remove('hidden');
+            resultSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Generate Card News Handler
+        async function generateCardNews(topicValue) {
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const resultSection = document.getElementById('resultSection');
+
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            resultSection.classList.add('hidden');
+            loading.classList.remove('hidden');
+
+            try {
+                const response = await fetch('/api/content/generate_and_render', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topic: topicValue })
+                });
+
+                if (!response.ok) {
+                    const errData = await response.json().catch(() => ({}));
+                    throw new Error(errData.detail || '서버 응답 오류가 발생했습니다.');
+                }
+
+                const data = await response.json();
+                displayPostData(data);
+                fetchHistory(); // Refresh history grid
+            } catch (error) {
+                alert("카드뉴스 생성 중 오류가 발생했습니다:\n" + error.message);
+                console.error(error);
+            } finally {
+                loading.classList.add('hidden');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            }
+        }
+
+        // Fetch & Render Content History List
+        async function fetchHistory() {
+            const gridEl = document.getElementById('historyGrid');
+            try {
+                const res = await fetch('/api/history');
+                const data = await res.json();
+                allHistoryItems = data.history || [];
+
+                if (allHistoryItems.length === 0) {
+                    gridEl.innerHTML = `
+                        <div class="col-span-full text-center py-12 text-slate-400 bg-white rounded-2xl border border-slate-200 border-dashed">
+                            <p class="text-base font-semibold">아직 저장된 보관함 카드가 없습니다.</p>
+                            <p class="text-xs text-slate-400 mt-1">카드뉴스를 새롭게 생성해 보세요!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                gridEl.innerHTML = '';
+                allHistoryItems.forEach((item, hIdx) => {
+                    const coverImg = (item.images && item.images.length > 0) ? `/${item.images[0]}` : '';
+                    const title = item.content?.cover_slide?.title || item.topic || '동물 뉴스 카드';
+                    const source = item.content?.source_name || '동물 실화';
+                    const createdAt = item.created_at || '';
+
+                    const cardHtml = `
+                        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 hover:shadow-md transition-shadow flex flex-col justify-between group">
+                            <div>
+                                <div class="overflow-hidden rounded-xl bg-slate-100 aspect-square mb-3 border border-slate-100 relative">
+                                    ${coverImg ? `<img src="${coverImg}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" alt="History Cover">` : `<div class="w-full h-full flex items-center justify-center text-slate-300">No Image</div>`}
+                                    <span class="absolute top-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                                        ${item.images ? item.images.length : 0}장
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-[11px] font-bold px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-md">📰 ${source}</span>
+                                    <span class="text-[11px] text-slate-400 font-mono">${createdAt}</span>
+                                </div>
+                                <h3 class="font-bold text-slate-800 text-sm line-clamp-2 mb-3 leading-snug">
+                                    ${title}
+                                </h3>
+                            </div>
+                            <button onclick="loadHistoryItem(${hIdx})" 
+                                    class="w-full py-2 px-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold text-xs rounded-xl transition-colors flex items-center justify-center gap-1">
+                                <span>📂 카드뉴스 불러오기</span>
+                            </button>
+                        </div>
+                    `;
+                    gridEl.innerHTML += cardHtml;
+                });
+            } catch (err) {
+                console.error("History fetch error:", err);
+            }
+        }
+
+        function loadHistoryItem(index) {
+            const item = allHistoryItems[index];
+            if (!item) return;
+            displayPostData(item);
+            showToast(`보관함 포스트("${item.topic}")를 성공적으로 불러왔습니다! 🎉`);
+        }
+
+        document.getElementById('generateForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const topic = document.getElementById('topicInput').value;
+            generateCardNews(topic);
+        });
+
+        document.getElementById('quickNewsBtn').addEventListener('click', () => {
+            document.getElementById('topicInput').value = "최신 이슈 동물 뉴스";
+            generateCardNews("동물 뉴스");
+        });
+
+        document.getElementById('refreshHistoryBtn').addEventListener('click', () => {
+            fetchHistory();
+            showToast("보관함 목록이 새로고침 되었습니다! 🔄");
+        });
+
+        // 1-Click Copy Handlers
+        document.getElementById('copyAllTextBtn').addEventListener('click', () => {
+            if (!currentPostData || !currentPostData.content) return;
+            const hashtagsText = (currentPostData.content.hashtags || []).map(t => `#${t}`).join(' ');
+            const fullText = `${currentPostData.content.caption || ''}\n\n${hashtagsText}`;
+            navigator.clipboard.writeText(fullText).then(() => {
+                showToast("인스타그램 캡션과 해시태그가 복사되었습니다! 🎉");
+            });
+        });
+
+        document.getElementById('copyCaptionBtn').addEventListener('click', () => {
+            if (!currentPostData || !currentPostData.content) return;
+            navigator.clipboard.writeText(currentPostData.content.caption || '').then(() => {
+                showToast("캡션 문구가 복사되었습니다! 📝");
+            });
+        });
+
+        document.getElementById('copyHashtagsBtn').addEventListener('click', () => {
+            if (!currentPostData || !currentPostData.content) return;
+            const hashtagsText = (currentPostData.content.hashtags || []).map(t => `#${t}`).join(' ');
+            navigator.clipboard.writeText(hashtagsText).then(() => {
+                showToast("해시태그가 복사되었습니다! 🏷");
+            });
+        });
+
+        // Load History on Page Load
+        fetchHistory();
+    </script>
+</body>
+</html>

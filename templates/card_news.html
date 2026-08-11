@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card News Slide</title>
+    {% if base_dir %}
+    <base href="file:///{{ base_dir }}/">
+    {% endif %}
+    {% if css_content %}
+    <style>
+    {{ css_content|safe }}
+    </style>
+    {% else %}
+    <link rel="stylesheet" href="style.css">
+    {% endif %}
+</head>
+<body>
+    <div class="card-container">
+        <!-- 100% Full-Bleed Background Image -->
+        {% if image_path %}
+        <img class="full-bg-image" src="{{ image_path }}" alt="Full Bleed Background">
+        {% endif %}
+
+        <!-- Cinematic Dark Gradient Overlay -->
+        <div class="gradient-overlay"></div>
+
+        <!-- Foreground Content Container -->
+        <div class="card-content">
+            <!-- Top Header Bar -->
+            <div class="top-header">
+                <div class="brand-badge">
+                    <span class="brand-logo-icon"></span>
+                    <span>{{ source_name }}</span>
+                </div>
+            </div>
+
+            <!-- Main Slide Content Area -->
+            {% if slide_type == 'cover' %}
+            <!-- COVER SLIDE -->
+            <div class="slide cover-slide">
+                <div class="cover-tagline-badge">📌 {{ category }}</div>
+                <h1 class="cover-title">{{ title }}</h1>
+                {% if subtitle %}
+                <p class="cover-subtitle">{{ subtitle }}</p>
+                {% endif %}
+            </div>
+
+            {% elif slide_type == 'body' %}
+            <!-- BODY SLIDE - CLEAN FLOATING TEXT WITHOUT BOXES -->
+            <div class="slide body-slide">
+                <div class="body-header">
+                    <h2 class="body-title">{{ title }}</h2>
+                    {% if subtitle %}
+                    <p class="body-subtitle">{{ subtitle }}</p>
+                    {% endif %}
+                </div>
+
+                {% if story_text %}
+                <div class="story-container-floating">
+                    <p class="body-story-text">{{ story_text }}</p>
+                </div>
+                {% endif %}
+            </div>
+
+            {% elif slide_type == 'cta' %}
+            <!-- CTA SLIDE -->
+            <div class="slide cta-slide">
+                <div class="cover-tagline-badge">😱 놀라운 실화 더보기</div>
+                <h2 class="cta-title">{{ title }}</h2>
+                <p class="cta-content">{{ content }}</p>
+                <div class="cta-box">
+                    ❤️ 좋아요 · 💬 댓글 · 📌 저장 · 🚀 공유
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>
