@@ -35,6 +35,21 @@
 
 ## 🚀 실행 방법 (Getting Started)
 
+### 🍎 맥북(macOS) 1-Click 자동 설치 & 1초 실행 (MacBook)
+
+1. **최초 1회 자동 인스톨 (터미널)**:
+   ```bash
+   chmod +x setup_mac.sh start_mac.command
+   ./setup_mac.sh
+   ```
+2. **이후 사용 시 (더블 클릭 1초 실행)**:
+   - 맥 파인더(Finder)에서 **`start_mac.command`** 아이콘을 더블 클릭합니다.
+   - 터미널 서비스가 시작되고, **웹 브라우저(`http://localhost:8000`)가 자동으로 오픈**됩니다!
+
+---
+
+### 💻 윈도우(Windows) 및 일반 환경
+
 1. **의존성 라이브러리 설치**:
    ```bash
    pip install -r requirements.txt
