@@ -22,10 +22,104 @@ SAFETY_SETTINGS = {
     HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: HarmBlockThreshold.BLOCK_NONE,
 }
 
+TAG_CONFLICT_GROUPS = [
+    {"[📢 제목이 밋밋함]", "[📢 제목이 과함/자극적임]"},
+    {"[📖 스토리가 긺]", "[🔄 결말이 아쉽다(스토리 확장)]"}
+]
+
+def build_dynamic_feedback_prompt(current_topic: str) -> str:
+    """
+    Constructs dynamic system instructions and Few-Shot exemplar prompts
+    enforcing the 3 System Defense Rules:
+    - Rule 1: Cold-start guard (minimum 5 feedbacks needed) + top 3 sliding window (score >= 4.2).
+    - Rule 2: Genre/emotion 1:1 matching filter.
+    - Rule 3: Conflict resolution & latest tag override.
+    """
+    feedback_file = os.path.abspath("Content/feedbacks.json")
+    if not os.path.exists(feedback_file):
+        return ""
+        
+    try:
+        with open(feedback_file, "r", encoding="utf-8") as f:
+            feedbacks = json.load(f)
+    except Exception:
+        return ""
+        
+    # Rule 1.1: Cold Start Guard - require at least 5 feedback entries
+    if len(feedbacks) < 5:
+        return f"\n[AI 학습 엔진 Status]: 사용자 피드백 수집 초기 단계 (현재 {len(feedbacks)}/5건). 기본 고품질 서사 지침을 유지합니다."
+        
+    # Rule 2: Extract current topic emotion/category & filter matching genre
+    current_topic_lower = current_topic.lower()
+    matching_feedbacks = []
+    for fb in feedbacks:
+        fb_cat = (fb.get("category") or "").lower()
+        fb_emo = (fb.get("emotion") or "").lower()
+        if (fb_cat and fb_cat in current_topic_lower) or (fb_emo and fb_emo in current_topic_lower) or not fb_cat:
+            matching_feedbacks.append(fb)
+            
+    if not matching_feedbacks:
+        matching_feedbacks = feedbacks # Fallback
+
+    recent_10 = sorted(matching_feedbacks, key=lambda x: x.get("created_at", ""), reverse=True)[:10]
+    
+    # Rule 1.2: Sliding window - top 3 with overall_score >= 4.2
+    high_score_feedbacks = [fb for fb in recent_10 if fb.get("overall_score", 0) >= 4.2]
+    high_score_feedbacks.sort(key=lambda x: x.get("overall_score", 0), reverse=True)
+    top_3_exemplars = high_score_feedbacks[:3]
+    
+    # Rule 3: Quick Tag Conflict Resolution
+    active_quick_tags = []
+    seen_conflict_groups = set()
+    
+    for fb in recent_10:
+        q_tags = fb.get("quick_tags", [])
+        for tag in q_tags:
+            conflict_found = False
+            for group_idx, group in enumerate(TAG_CONFLICT_GROUPS):
+                if tag in group:
+                    conflict_found = True
+                    if group_idx not in seen_conflict_groups:
+                        seen_conflict_groups.add(group_idx)
+                        active_quick_tags.append(tag)
+                    break
+            if not conflict_found and tag not in active_quick_tags:
+                active_quick_tags.append(tag)
+                
+    learning_prompt = "\n\n[🧠 AI 사용자 맞춤형 퀄리티 학습 지침 (RLHF Engine)]\n"
+    
+    if top_3_exemplars:
+        learning_prompt += "사용자가 검증하고 최고점(4.2점 이상)을 부여한 이전 성공작 패턴입니다. 이 우수한 서사 및 톤앤매너를 적극 반영하세요:\n"
+        for idx, ex in enumerate(top_3_exemplars, 1):
+            learning_prompt += f"  - 성공 사례 {idx} (평점 {ex.get('overall_score')}점): [헤드라인: {ex.get('score_headline')}점, 서사: {ex.get('score_story')}점, 스와이프: {ex.get('score_curiosity')}점]\n"
+            
+    if active_quick_tags:
+        learning_prompt += "\n사용자가 피드백에서 보완을 요청한 핵심 지침입니다. 이번 생성 시 우선 적용하세요:\n"
+        for tag in active_quick_tags:
+            if "제목이 밋밋함" in tag:
+                learning_prompt += "  ⚠️ [헤드라인 보완]: 1초 만에 엄지를 멈추게 하는 충격적인 반전 형용사와 강렬한 키워드를 대폭 강조하세요.\n"
+            elif "스토리가 긺" in tag:
+                learning_prompt += "  ⚠️ [서사 보완]: 1.5줄 60자 이내로 핵심만 군더더기 없이 슬림하게 축약하세요.\n"
+            elif "이미지가 안 맞음" in tag:
+                learning_prompt += "  ⚠️ [이미지 보완]: AI 이미지 프롬프트를 더 직관적이고 피드백 주제와 100% 찰떡같이 어울리도록 시각적 묘사를 구체화하세요.\n"
+            elif "결말이 아쉽다" in tag:
+                learning_prompt += "  ⚠️ [결말 보완]: 마지막 슬라이드에 명확하고 감동적인 사건의 최종 해피엔딩/후일담을 확실히 마무리하세요.\n"
+            elif "완벽해요" in tag:
+                learning_prompt += "  🔥 [성공 톤 유지]: 이전 카드뉴스가 완벽하다는 찬사를 받았습니다. 완벽한 4단계 서사와 1.5줄 몰입 톤을 유지하세요.\n"
+
+    for fb in recent_10:
+        memo = fb.get("user_memo", "").strip()
+        if memo:
+            learning_prompt += f"\n  📝 [사용자 커스텀 요청 메모]: \"{memo}\"\n"
+            break
+
+    return learning_prompt
+
 def generate_content_from_topic(topic: str) -> CardNewsData:
     """
     Generates single-narrative complete (기승전결 4-act) Instagram Card News based on a real bizarre global animal news story.
     Enforces telling ONE complete story with an engaging beginning, development, climax twist, and definitive conclusion.
+    Integrates Dynamic AI Prompt Learning Engine.
     """
     news_item = fetch_real_animal_news(topic)
     
@@ -34,6 +128,8 @@ def generate_content_from_topic(topic: str) -> CardNewsData:
     is_fallback = news_item["is_historical_fallback"]
     news_title = news_item["title"]
     news_snippet = news_item["snippet"]
+
+    dynamic_learning_prompt = build_dynamic_feedback_prompt(topic)
 
     prompt = f"""
     [해외 엽기/놀라운 동물 실화 기사 정보]
@@ -57,6 +153,7 @@ def generate_content_from_topic(topic: str) -> CardNewsData:
        - `subtitle` 및 `key_tip`은 빈 문자열(`""`), `bullet_points`는 빈 배열(`[]`)로 작성하세요.
     3. **이미지 프롬프트 지침**:
        - 사건의 4단계 서사에 부합하는 고화질 비주얼 스타일을 영어로 작성하세요. (실사 photorealistic 또는 3D cartoon 명시)
+{dynamic_learning_prompt}
 
     [필수 JSON 응답 구조]
     {{

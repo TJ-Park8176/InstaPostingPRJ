@@ -179,6 +179,95 @@
                     </div>
                 </div>
             </div>
+
+            <!-- 🔥 AI Quality Assessment & 1-Tap Quick Tag Feedback Section -->
+            <div class="glass-card p-6 sm:p-8 rounded-3xl shadow-xl shadow-amber-100/50 border border-amber-200/60 bg-gradient-to-br from-white via-amber-50/30 to-orange-50/40">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-amber-200/50">
+                    <div>
+                        <div class="inline-flex items-center gap-2 px-3 py-1 bg-amber-100 text-amber-800 text-xs font-extrabold rounded-full mb-2">
+                            🧠 AI 자율 학습 엔진 (RLHF Quality Feedback)
+                        </div>
+                        <h3 class="text-xl font-black text-slate-900 flex items-center gap-2">
+                            🔥 AI 카드뉴스 5대 바이럴 평가 & 1초 퀵태그
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-1">
+                            평가 점수와 퀵태그를 남기시면 다음 카드뉴스 기획 시 AI가 성향을 즉시 반영하여 퀄리티를 더욱 높입니다.
+                        </p>
+                    </div>
+                    <button id="saveFeedbackBtn" type="button"
+                        class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-extrabold text-sm rounded-2xl shadow-md transition-all transform hover:scale-[1.02] active:scale-[0.98]">
+                        <span>💾 피드백 저장 & AI 학습 반영</span>
+                    </button>
+                </div>
+
+                <!-- 5 Metrics Rating Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+                    <div class="bg-white/80 p-3.5 rounded-2xl border border-slate-200 flex flex-col items-center text-center">
+                        <span class="text-xs font-bold text-slate-700 mb-1">📢 헤드라인 멈춤력</span>
+                        <div class="star-rating flex text-amber-400 text-lg cursor-pointer" data-metric="headline">
+                            <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span><span data-val="4">★</span><span data-val="5" class="text-slate-300">★</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/80 p-3.5 rounded-2xl border border-slate-200 flex flex-col items-center text-center">
+                        <span class="text-xs font-bold text-slate-700 mb-1">📖 서사 몰입감</span>
+                        <div class="star-rating flex text-amber-400 text-lg cursor-pointer" data-metric="story">
+                            <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span><span data-val="4">★</span><span data-val="5" class="text-slate-300">★</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/80 p-3.5 rounded-2xl border border-slate-200 flex flex-col items-center text-center">
+                        <span class="text-xs font-bold text-slate-700 mb-1">🖼️ 비주얼 싱크</span>
+                        <div class="star-rating flex text-amber-400 text-lg cursor-pointer" data-metric="image">
+                            <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span><span data-val="4">★</span><span data-val="5" class="text-slate-300">★</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/80 p-3.5 rounded-2xl border border-slate-200 flex flex-col items-center text-center">
+                        <span class="text-xs font-bold text-slate-700 mb-1">🔄 스와이프 유도</span>
+                        <div class="star-rating flex text-amber-400 text-lg cursor-pointer" data-metric="curiosity">
+                            <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span><span data-val="4">★</span><span data-val="5" class="text-slate-300">★</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white/80 p-3.5 rounded-2xl border border-slate-200 flex flex-col items-center text-center">
+                        <span class="text-xs font-bold text-slate-700 mb-1">💬 공유/댓글 유발</span>
+                        <div class="star-rating flex text-amber-400 text-lg cursor-pointer" data-metric="shareability">
+                            <span data-val="1">★</span><span data-val="2">★</span><span data-val="3">★</span><span data-val="4">★</span><span data-val="5" class="text-slate-300">★</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 1-Tap Quick Tags Container -->
+                <div class="mb-4">
+                    <span class="text-xs font-bold text-slate-700 block mb-2">🏷️ 1초 원클릭 아쉬운점 퀵태그 (클릭 시 자동 피드백 추가)</span>
+                    <div id="quickTagContainer" class="flex flex-wrap gap-2">
+                        <button type="button" class="quick-tag-btn px-3 py-1.5 bg-white border border-slate-200 hover:border-amber-400 text-slate-700 text-xs font-semibold rounded-xl transition-all" data-tag="[📢 제목이 밋밋함]">
+                            📢 제목이 밋밋함
+                        </button>
+                        <button type="button" class="quick-tag-btn px-3 py-1.5 bg-white border border-slate-200 hover:border-amber-400 text-slate-700 text-xs font-semibold rounded-xl transition-all" data-tag="[📖 스토리가 긺]">
+                            📖 스토리가 긺
+                        </button>
+                        <button type="button" class="quick-tag-btn px-3 py-1.5 bg-white border border-slate-200 hover:border-amber-400 text-slate-700 text-xs font-semibold rounded-xl transition-all" data-tag="[🖼️ 이미지가 안 맞음]">
+                            🖼️ 이미지가 안 맞음
+                        </button>
+                        <button type="button" class="quick-tag-btn px-3 py-1.5 bg-white border border-slate-200 hover:border-amber-400 text-slate-700 text-xs font-semibold rounded-xl transition-all" data-tag="[🔄 결말이 아쉽다]">
+                            🔄 결말이 아쉽다
+                        </button>
+                        <button type="button" class="quick-tag-btn px-3 py-1.5 bg-amber-50 border border-amber-300 text-amber-900 text-xs font-bold rounded-xl transition-all" data-tag="[🔥 완벽해요!]">
+                            🔥 완벽해요!
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Custom Memo Text Area -->
+                <div>
+                    <input type="text" id="userMemoInput"
+                        class="w-full rounded-xl border-slate-200 text-xs px-4 py-2.5 bg-white/90 border placeholder-slate-400 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                        placeholder="📝 한 줄 개선 요청 메모 (예: 이미지를 더 실사 느낌으로, 제목에 어그로 추가)">
+                </div>
+            </div>
+        </div>
         </div>
 
         <!-- Content History Section (보관함) -->
@@ -502,6 +591,84 @@
             navigator.clipboard.writeText(hashtagsText).then(() => {
                 showToast("해시태그가 복사되었습니다! 🏷");
             });
+        });
+
+        // Interactive Star Rating & Quick Tag State
+        const feedbackScores = { headline: 5, story: 5, image: 5, curiosity: 5, shareability: 5 };
+        const selectedQuickTags = new Set();
+
+        document.querySelectorAll('.star-rating').forEach(container => {
+            const metric = container.getAttribute('data-metric');
+            const stars = container.querySelectorAll('span');
+            stars.forEach(star => {
+                star.addEventListener('click', () => {
+                    const val = parseInt(star.getAttribute('data-val'));
+                    feedbackScores[metric] = val;
+                    stars.forEach(s => {
+                        const sVal = parseInt(s.getAttribute('data-val'));
+                        if (sVal <= val) {
+                            s.classList.remove('text-slate-300');
+                            s.classList.add('text-amber-400');
+                        } else {
+                            s.classList.remove('text-amber-400');
+                            s.classList.add('text-slate-300');
+                        }
+                    });
+                });
+            });
+        });
+
+        document.querySelectorAll('.quick-tag-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tag = btn.getAttribute('data-tag');
+                if (selectedQuickTags.has(tag)) {
+                    selectedQuickTags.delete(tag);
+                    btn.classList.remove('bg-amber-500', 'text-white', 'border-amber-600');
+                    btn.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+                } else {
+                    selectedQuickTags.add(tag);
+                    btn.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+                    btn.classList.add('bg-amber-500', 'text-white', 'border-amber-600');
+                }
+            });
+        });
+
+        // Save Feedback Handler
+        document.getElementById('saveFeedbackBtn').addEventListener('click', async () => {
+            if (!currentPostData) {
+                alert("평가할 카드뉴스를 선택해 주세요.");
+                return;
+            }
+            const postId = currentPostData.post_id || currentPostData.folder_name || "draft";
+            const memo = document.getElementById('userMemoInput').value;
+            const category = currentPostData.content?.category || "";
+
+            const payload = {
+                post_id: String(postId),
+                score_headline: feedbackScores.headline,
+                score_story: feedbackScores.story,
+                score_image: feedbackScores.image,
+                score_curiosity: feedbackScores.curiosity,
+                score_shareability: feedbackScores.shareability,
+                quick_tags: Array.from(selectedQuickTags),
+                user_memo: memo,
+                category: category
+            };
+
+            try {
+                const res = await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    showToast("⭐ 평가 피드백이 기록되었습니다! 다음 카드뉴스 생성 시 AI에 자동 학습 반영됩니다! 🧠");
+                } else {
+                    throw new Error("피드백 저장 실패");
+                }
+            } catch (err) {
+                alert("피드백 저장 중 오류가 발생했습니다: " + err.message);
+            }
         });
 
         // Load History on Page Load

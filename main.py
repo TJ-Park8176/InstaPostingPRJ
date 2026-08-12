@@ -34,8 +34,65 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 app.mount("/output", StaticFiles(directory=OUTPUT_DIR), name="output")
 app.mount("/Content", StaticFiles(directory=CONTENT_DIR), name="Content")
 
+from schemas.feedback import CardNewsFeedback
+
 # Setup Jinja2 templates for the Web UI
 templates = Jinja2Templates(directory="templates")
+
+FEEDBACK_FILE = os.path.join(CONTENT_DIR, "feedbacks.json")
+
+def load_all_feedbacks():
+    if not os.path.exists(FEEDBACK_FILE):
+        return []
+    try:
+        with open(FEEDBACK_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Error loading feedbacks: {e}")
+        return []
+
+def save_feedback_entry(fb_dict: dict):
+    feedbacks = load_all_feedbacks()
+    # Replace existing feedback for same post_id if present
+    feedbacks = [f for f in feedbacks if str(f.get("post_id")) != str(fb_dict.get("post_id"))]
+    feedbacks.append(fb_dict)
+    with open(FEEDBACK_FILE, "w", encoding="utf-8") as f:
+        json.dump(feedbacks, f, ensure_ascii=False, indent=2)
+
+@app.post("/api/feedback")
+async def save_feedback(fb: CardNewsFeedback):
+    try:
+        fb_data = fb.model_dump()
+        fb_data["created_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        fb_data["overall_score"] = fb.overall_score
+        save_feedback_entry(fb_data)
+        
+        # Also update meta.json inside Content/ if folder exists
+        for item in os.listdir(CONTENT_DIR):
+            item_path = os.path.join(CONTENT_DIR, item)
+            if os.path.isdir(item_path):
+                meta_file = os.path.join(item_path, "meta.json")
+                if os.path.exists(meta_file):
+                    try:
+                        with open(meta_file, "r", encoding="utf-8") as f:
+                            meta = json.load(f)
+                        if str(meta.get("post_id")) == str(fb.post_id) or str(meta.get("folder_name")) == str(fb.post_id):
+                            meta["feedback"] = fb_data
+                            with open(meta_file, "w", encoding="utf-8") as f:
+                                json.dump(meta, f, ensure_ascii=False, indent=2)
+                    except Exception:
+                        pass
+        return {"status": "success", "data": fb_data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/feedback/{post_id}")
+async def get_feedback(post_id: str):
+    feedbacks = load_all_feedbacks()
+    for fb in feedbacks:
+        if str(fb.get("post_id")) == str(post_id):
+            return {"status": "success", "data": fb}
+    return {"status": "not_found", "data": None}
 
 # Web UI Route
 @app.get("/", response_class=HTMLResponse)
