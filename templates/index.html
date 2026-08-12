@@ -361,6 +361,10 @@
         // Display Rendered Post in UI
         function displayPostData(data) {
             currentPostData = data;
+            const postId = data.post_id || data.folder_name || '';
+            if (postId) {
+                loadPostFeedback(postId);
+            }
             const resultSection = document.getElementById('resultSection');
             const imageGallery = document.getElementById('imageGallery');
             const captionBox = document.getElementById('captionBox');
@@ -670,6 +674,85 @@
                 alert("피드백 저장 중 오류가 발생했습니다: " + err.message);
             }
         });
+
+        // Load & Restore Specific Post Feedback UI State
+        async function loadPostFeedback(postId) {
+            // 1. Reset UI to default state
+            feedbackScores.headline = 5;
+            feedbackScores.story = 5;
+            feedbackScores.image = 5;
+            feedbackScores.curiosity = 5;
+            feedbackScores.shareability = 5;
+            selectedQuickTags.clear();
+
+            const memoInput = document.getElementById('userMemoInput');
+            if (memoInput) memoInput.value = '';
+
+            // Reset Star Visuals (All 5 filled)
+            document.querySelectorAll('.star-rating').forEach(container => {
+                container.querySelectorAll('span').forEach(s => {
+                    s.classList.remove('text-slate-300');
+                    s.classList.add('text-amber-400');
+                });
+            });
+
+            // Reset Quick Tag Buttons (All unselected)
+            document.querySelectorAll('.quick-tag-btn').forEach(btn => {
+                btn.classList.remove('bg-amber-500', 'text-white', 'border-amber-600');
+                btn.classList.add('bg-white', 'text-slate-700', 'border-slate-200');
+            });
+
+            if (!postId) return;
+
+            // 2. Fetch stored feedback for this specific postId
+            try {
+                const res = await fetch(`/api/feedback/${postId}`);
+                if (!res.ok) return;
+                const result = await res.json();
+                if (result.status === 'success' && result.data) {
+                    const fb = result.data;
+                    feedbackScores.headline = fb.score_headline || 5;
+                    feedbackScores.story = fb.score_story || 5;
+                    feedbackScores.image = fb.score_image || 5;
+                    feedbackScores.curiosity = fb.score_curiosity || 5;
+                    feedbackScores.shareability = fb.score_shareability || 5;
+
+                    // Restore Stars UI
+                    document.querySelectorAll('.star-rating').forEach(container => {
+                        const metric = container.getAttribute('data-metric');
+                        const scoreVal = feedbackScores[metric] || 5;
+                        container.querySelectorAll('span').forEach(s => {
+                            const sVal = parseInt(s.getAttribute('data-val'));
+                            if (sVal <= scoreVal) {
+                                s.classList.remove('text-slate-300');
+                                s.classList.add('text-amber-400');
+                            } else {
+                                s.classList.remove('text-amber-400');
+                                s.classList.add('text-slate-300');
+                            }
+                        });
+                    });
+
+                    // Restore Quick Tags UI
+                    const savedTags = fb.quick_tags || [];
+                    savedTags.forEach(tag => selectedQuickTags.add(tag));
+                    document.querySelectorAll('.quick-tag-btn').forEach(btn => {
+                        const tag = btn.getAttribute('data-tag');
+                        if (selectedQuickTags.has(tag)) {
+                            btn.classList.remove('bg-white', 'text-slate-700', 'border-slate-200');
+                            btn.classList.add('bg-amber-500', 'text-white', 'border-amber-600');
+                        }
+                    });
+
+                    // Restore User Memo UI
+                    if (memoInput && fb.user_memo) {
+                        memoInput.value = fb.user_memo;
+                    }
+                }
+            } catch (err) {
+                console.error("Error loading post feedback:", err);
+            }
+        }
 
         // Load History on Page Load
         fetchHistory();
