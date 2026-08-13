@@ -15,6 +15,13 @@ __pycache__/
 Content/
 output/
 .tempmediaStorage/
+*.db
+instapost.db
+
+# Test & Debug Files
+debug_*.py
+test_*.py
+test_*.jpg
 
 # IDE & AGY Workspace Metadata
 .vscode/

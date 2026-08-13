@@ -9,6 +9,10 @@ echo ==================================================
 :: Open Web Browser Automatically after 2 seconds
 start "" /b cmd /c "timeout /t 2 /nobreak > nul && start http://localhost:8000"
 
-:: Run FastAPI Web Server
-python main.py
+:: Run FastAPI Web Server using venv python if present
+if exist "venv\Scripts\python.exe" (
+    venv\Scripts\python main.py
+) else (
+    python main.py
+)
 pause
