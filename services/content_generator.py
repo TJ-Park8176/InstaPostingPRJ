@@ -7,7 +7,13 @@ from schemas.content import CardNewsData
 from services.news_collector import fetch_real_animal_news
 from dotenv import load_dotenv
 
-load_dotenv()
+try:
+    load_dotenv(encoding="utf-8-sig")
+except Exception:
+    try:
+        load_dotenv(encoding="utf-16")
+    except Exception:
+        load_dotenv()
 
 # Initialize Gemini API
 api_key = os.getenv("GEMINI_API_KEY")
