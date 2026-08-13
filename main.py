@@ -255,3 +255,7 @@ def download_post_images_zip(post_id: int, db: Session = Depends(get_db)):
 def generate_content(req: GenerateAndRenderRequest, db: Session = Depends(get_db)):
     card_data = generate_content_from_topic(req.topic)
     return {"status": "success", "data": card_data}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
