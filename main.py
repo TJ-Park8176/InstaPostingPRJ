@@ -258,4 +258,6 @@ def generate_content(req: GenerateAndRenderRequest, db: Session = Depends(get_db
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    print("🚀 InstaPostingPRJ Web Server is Running!")
+    print("👉 Please open http://localhost:8000 or http://127.0.0.1:8000 in your browser.")
+    uvicorn.run(app, host="127.0.0.1", port=8000)
