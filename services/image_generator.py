@@ -50,7 +50,7 @@ def download_ai_image(prompt: str, save_filepath: str) -> str:
     try:
         short_prompt = prompt.strip().split('.')[0][:60]
         clean_prompt = urllib.parse.quote(short_prompt)
-        pollinations_url = f"https://image.pollinations.ai/prompt/{clean_prompt}?width=800&height=500&seed={random.randint(1, 99999)}&nologo=true"
+        pollinations_url = f"https://image.pollinations.ai/prompt/{clean_prompt}?width=1080&height=1350&seed={random.randint(1, 99999)}&nologo=true"
         
         req = urllib.request.Request(
             pollinations_url, 
@@ -67,9 +67,9 @@ def download_ai_image(prompt: str, save_filepath: str) -> str:
     except Exception as e:
         print(f"Pollinations AI fallback notice ({e})...", flush=True)
 
-    # 3. Local Styled SVG Fallback
+    # 3. Local Styled SVG Fallback (1080 x 1350 Vertical 4:5)
     fallback_path = save_filepath.replace(".jpg", ".svg").replace(".png", ".svg")
-    svg_content = f"""<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+    svg_content = f"""<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
       <defs>
         <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" style="stop-color:#1e293b;stop-opacity:1" />
@@ -81,12 +81,12 @@ def download_ai_image(prompt: str, save_filepath: str) -> str:
           <stop offset="100%" style="stop-color:#ff8533;stop-opacity:1" />
         </linearGradient>
       </defs>
-      <rect width="800" height="500" fill="url(#bgGrad)" rx="20"/>
-      <circle cx="400" cy="210" r="90" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-opacity="0.1" stroke-width="2"/>
-      <text x="400" y="235" font-family="'Pretendard', sans-serif" font-size="80" text-anchor="middle">🦁</text>
-      <rect x="250" y="320" width="300" height="44" fill="url(#badgeGrad)" rx="22"/>
-      <text x="400" y="349" font-family="'Pretendard', sans-serif" font-size="20" fill="#ffffff" text-anchor="middle" font-weight="bold">WORLD BIZARRE ANIMAL</text>
-      <text x="400" y="410" font-family="'Pretendard', sans-serif" font-size="18" fill="#94a3b8" text-anchor="middle">Real News Story Illustration</text>
+      <rect width="1080" height="1350" fill="url(#bgGrad)"/>
+      <circle cx="540" cy="500" r="140" fill="#ffffff" fill-opacity="0.05" stroke="#ffffff" stroke-opacity="0.1" stroke-width="3"/>
+      <text x="540" y="540" font-family="'Pretendard', sans-serif" font-size="120" text-anchor="middle">🦁</text>
+      <rect x="340" y="700" width="400" height="56" fill="url(#badgeGrad)" rx="28"/>
+      <text x="540" y="736" font-family="'Pretendard', sans-serif" font-size="24" fill="#ffffff" text-anchor="middle" font-weight="bold">WORLD BIZARRE ANIMAL</text>
+      <text x="540" y="820" font-family="'Pretendard', sans-serif" font-size="22" fill="#94a3b8" text-anchor="middle">Real News Story Illustration (1080x1350)</text>
     </svg>"""
     
     with open(fallback_path, 'w', encoding='utf-8') as f:

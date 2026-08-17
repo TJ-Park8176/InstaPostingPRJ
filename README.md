@@ -1,6 +1,6 @@
 # 🐾 InstaPostingPRJ - 인스타그램 AI 동물 카드뉴스 자동 생성기
 
-**InstaPostingPRJ**는 실시간 해외 동물 소식(구글 뉴스 RSS) 및 사용자 입력을 기반으로, **Google Gemini 3.5 Flash** 및 **Nano Banana 2 (`gemini-3.1-flash-image`) AI**를 활용하여 초고화질 1080x1080 풀블리드 에디토리얼 인스타그램 카드뉴스를 자동 제작하고 영구 보관하는 파이썬 웹 애플리케이션입니다.
+**InstaPostingPRJ**는 실시간 해외 동물 소식(구글 뉴스 RSS) 및 사용자 입력을 기반으로, **Google Gemini 3.5 Flash** 및 **Nano Banana 2 (`gemini-3.1-flash-image`) AI**를 활용하여 인스타그램 최적 세로형 **1080x1350 (4:5 세로형)** 풀블리드 에디토리얼 카드뉴스를 자동 제작하고 영구 보관하는 파이썬 웹 애플리케이션입니다.
 
 ---
 
@@ -13,8 +13,8 @@
 2. **📖 단일 실화 완결형 서사 (4-Act Narrative Arc Storytelling)**:
    - 떡밥성 낚시 헤드라인을 배제하고, 단 하나의 실화 사건에 대해 **기승전결(발단-전개-반전-결말)**이 명확한 1.5줄 완결성 문구 및 클리프행어 제공.
 
-3. **🎨 100% Full-Bleed 미디어 레이아웃 & 최적화 브랜딩**:
-   - 풀스크린 HD 이미지 + 비브런트 코랄 레드 & 골드 엠버 시그니처 브랜딩.
+3. **🎨 100% Full-Bleed 4:5 세로형 미디어 레이아웃 & 최적화 브랜딩**:
+   - 인스타그램 모바일 최적 **1080x1350px (4:5 세로 비율)** 풀스크린 HD 이미지 + 비브런트 코랄 레드 & 골드 엠버 시그니처 브랜딩.
    - 배경 이미지가 80% 이상 시원하게 드러나도록 40px 스토리 폰트 및 슬림 페이드 최적화.
 
 4. **📂 Content 영구 보관함 & 미리보기 모달**:
@@ -28,7 +28,7 @@
 - **Backend**: Python 3.9+, FastAPI, Playwright, Jinja2
 - **AI Models**:
   - LLM: `gemini-3.5-flash` (스토리 기획 및 캡션 작성)
-  - Image Gen: `gemini-3.1-flash-image` (Nano Banana 2 고화질 1080x1080 이미지 생성)
+  - Image Gen: `gemini-3.1-flash-image` (Nano Banana 2 고화질 1080x1350 세로형 이미지 생성)
 - **Frontend**: HTML5, CSS3, Vanilla JS
 
 ---

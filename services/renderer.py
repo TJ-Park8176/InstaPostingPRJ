@@ -75,7 +75,7 @@ def _sync_render_card_news(data: CardNewsData, output_dir: str = "output"):
 
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        page = browser.new_page(viewport={'width': 1080, 'height': 1080})
+        page = browser.new_page(viewport={'width': 1080, 'height': 1350})
 
         image_paths = []
 

@@ -158,7 +158,7 @@ def generate_content_from_topic(topic: str) -> CardNewsData:
        - 텍스트가 배경 이미지를 많이 가리지 않도록 2문장 이내로 작성하고, 슬라이드 끝부분은 다음 장이 궁금해지는 질문이나 반전 복선을 포함하세요! (예: "과연 녀석의 진짜 정체는?", "그런데 믿기 힘든 반전이 시작됩니다.")
        - `subtitle` 및 `key_tip`은 빈 문자열(`""`), `bullet_points`는 빈 배열(`[]`)로 작성하세요.
     3. **이미지 프롬프트 지침**:
-       - 사건의 4단계 서사에 부합하는 고화질 비주얼 스타일을 영어로 작성하세요. (실사 photorealistic 또는 3D cartoon 명시)
+       - 사건의 4단계 서사에 부합하는 인스타그램 세로형 4:5(1080x1350) 규격의 고화질 비주얼 스타일을 영어로 작성하세요. (vertical 4:5 portrait aspect ratio, cinematic lighting, photorealistic or 3D cartoon style)
 {dynamic_learning_prompt}
 
     [필수 JSON 응답 구조]
